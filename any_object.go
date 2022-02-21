@@ -201,7 +201,7 @@ func (any *objectAny) ToFloat64() float64 {
 }
 
 func (any *objectAny) ToString() string {
-	str, err := MarshalToString(any.val.Interface())
+	str, err := DefaultAPI().MarshalToString(any.val.Interface())
 	any.err = err
 	return str
 }
@@ -320,7 +320,7 @@ func (any *mapAny) ToFloat64() float64 {
 }
 
 func (any *mapAny) ToString() string {
-	str, err := MarshalToString(any.val.Interface())
+	str, err := DefaultAPI().MarshalToString(any.val.Interface())
 	any.err = err
 	return str
 }

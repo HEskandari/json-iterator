@@ -36,9 +36,7 @@ type checkIsEmpty interface {
 
 type ctx struct {
 	*frozenConfig
-	prefix   string
-	encoders map[reflect2.Type]ValEncoder
-	decoders map[reflect2.Type]ValDecoder
+	prefix string
 }
 
 func (b *ctx) caseSensitive() bool {
@@ -53,8 +51,6 @@ func (b *ctx) append(prefix string) *ctx {
 	return &ctx{
 		frozenConfig: b.frozenConfig,
 		prefix:       b.prefix + " " + prefix,
-		encoders:     b.encoders,
-		decoders:     b.decoders,
 	}
 }
 
@@ -107,8 +103,6 @@ func (cfg *frozenConfig) DecoderOf(typ reflect2.Type) ValDecoder {
 	ctx := &ctx{
 		frozenConfig: cfg,
 		prefix:       "",
-		decoders:     map[reflect2.Type]ValDecoder{},
-		encoders:     map[reflect2.Type]ValEncoder{},
 	}
 	ptrType := typ.(*reflect2.UnsafePtrType)
 	decoder = decoderOfType(ctx, ptrType.Elem())
@@ -122,9 +116,6 @@ func decoderOfType(ctx *ctx, typ reflect2.Type) ValDecoder {
 		return decoder
 	}
 	decoder = createDecoderOfType(ctx, typ)
-	for _, extension := range extensions {
-		decoder = extension.DecorateDecoder(typ, decoder)
-	}
 	decoder = ctx.decoderExtension.DecorateDecoder(typ, decoder)
 	for _, extension := range ctx.extraExtensions {
 		decoder = extension.DecorateDecoder(typ, decoder)
@@ -133,12 +124,12 @@ func decoderOfType(ctx *ctx, typ reflect2.Type) ValDecoder {
 }
 
 func createDecoderOfType(ctx *ctx, typ reflect2.Type) ValDecoder {
-	decoder := ctx.decoders[typ]
+	decoder := ctx.frozenConfig.typeDecoders[typ.String()]
 	if decoder != nil {
 		return decoder
 	}
 	placeholder := &placeholderDecoder{}
-	ctx.decoders[typ] = placeholder
+	ctx.frozenConfig.typeDecoders[typ.String()] = placeholder
 	decoder = _createDecoderOfType(ctx, typ)
 	placeholder.decoder = decoder
 	return decoder
@@ -196,8 +187,6 @@ func (cfg *frozenConfig) EncoderOf(typ reflect2.Type) ValEncoder {
 	ctx := &ctx{
 		frozenConfig: cfg,
 		prefix:       "",
-		decoders:     map[reflect2.Type]ValDecoder{},
-		encoders:     map[reflect2.Type]ValEncoder{},
 	}
 	encoder = encoderOfType(ctx, typ)
 	if typ.LikePtr() {
@@ -225,9 +214,6 @@ func encoderOfType(ctx *ctx, typ reflect2.Type) ValEncoder {
 		return encoder
 	}
 	encoder = createEncoderOfType(ctx, typ)
-	for _, extension := range extensions {
-		encoder = extension.DecorateEncoder(typ, encoder)
-	}
 	encoder = ctx.encoderExtension.DecorateEncoder(typ, encoder)
 	for _, extension := range ctx.extraExtensions {
 		encoder = extension.DecorateEncoder(typ, encoder)
@@ -236,12 +222,12 @@ func encoderOfType(ctx *ctx, typ reflect2.Type) ValEncoder {
 }
 
 func createEncoderOfType(ctx *ctx, typ reflect2.Type) ValEncoder {
-	encoder := ctx.encoders[typ]
+	encoder := ctx.frozenConfig.typeEncoders[typ.String()]
 	if encoder != nil {
 		return encoder
 	}
 	placeholder := &placeholderEncoder{}
-	ctx.encoders[typ] = placeholder
+	ctx.frozenConfig.typeEncoders[typ.String()] = placeholder
 	encoder = _createEncoderOfType(ctx, typ)
 	placeholder.encoder = encoder
 	return encoder

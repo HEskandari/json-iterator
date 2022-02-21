@@ -1,14 +1,14 @@
 package extra
 
 import (
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"strings"
 	"unicode"
 )
 
 // SupportPrivateFields include private fields when encoding/decoding
-func SupportPrivateFields() {
-	jsoniter.RegisterExtension(&privateFieldsExtension{})
+func SupportPrivateFields(api jsoniter.API) {
+	api.RegisterExtension(&privateFieldsExtension{})
 }
 
 type privateFieldsExtension struct {

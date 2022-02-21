@@ -1,3 +1,4 @@
+//go:build go1.8
 // +build go1.8
 
 package misc_tests
@@ -11,13 +12,13 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_read_uint64_invalid(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, ",")
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), ",")
 	iter.ReadUint64()
 	should.NotNil(iter.Error)
 }
@@ -26,7 +27,7 @@ func Test_read_int32_array(t *testing.T) {
 	should := require.New(t)
 	input := `[123,456,789]`
 	val := make([]int32, 0)
-	jsoniter.UnmarshalFromString(input, &val)
+	jsoniter.DefaultAPI().UnmarshalFromString(input, &val)
 	should.Equal(3, len(val))
 }
 
@@ -34,13 +35,13 @@ func Test_read_int64_array(t *testing.T) {
 	should := require.New(t)
 	input := `[123,456,789]`
 	val := make([]int64, 0)
-	jsoniter.UnmarshalFromString(input, &val)
+	jsoniter.DefaultAPI().UnmarshalFromString(input, &val)
 	should.Equal(3, len(val))
 }
 
 func Test_wrap_int(t *testing.T) {
 	should := require.New(t)
-	str, err := jsoniter.MarshalToString(jsoniter.WrapInt64(100))
+	str, err := jsoniter.DefaultAPI().MarshalToString(jsoniter.WrapInt64(100))
 	should.Nil(err)
 	should.Equal("100", str)
 }
@@ -48,7 +49,7 @@ func Test_wrap_int(t *testing.T) {
 func Test_write_val_int(t *testing.T) {
 	should := require.New(t)
 	buf := &bytes.Buffer{}
-	stream := jsoniter.NewStream(jsoniter.ConfigDefault, buf, 4096)
+	stream := jsoniter.NewStream(jsoniter.DefaultAPI(), buf, 4096)
 	stream.WriteVal(1001)
 	stream.Flush()
 	should.Nil(stream.Error)
@@ -58,7 +59,7 @@ func Test_write_val_int(t *testing.T) {
 func Test_write_val_int_ptr(t *testing.T) {
 	should := require.New(t)
 	buf := &bytes.Buffer{}
-	stream := jsoniter.NewStream(jsoniter.ConfigDefault, buf, 4096)
+	stream := jsoniter.NewStream(jsoniter.DefaultAPI(), buf, 4096)
 	val := 1001
 	stream.WriteVal(&val)
 	stream.Flush()
@@ -69,7 +70,7 @@ func Test_write_val_int_ptr(t *testing.T) {
 func Test_float_as_int(t *testing.T) {
 	should := require.New(t)
 	var i int
-	should.NotNil(jsoniter.Unmarshal([]byte(`1.1`), &i))
+	should.NotNil(jsoniter.DefaultAPI().Unmarshal([]byte(`1.1`), &i))
 }
 
 // chunkedData is io.Reader which returns random amount of data in range [1, chunkedData.chunkSize].
@@ -111,7 +112,7 @@ func TestIterator_ReadInt_chunkedInput(t *testing.T) {
 	for data.chunkSize = 3; data.chunkSize <= len(data.data); data.chunkSize++ {
 		data.head = 0
 
-		iter := jsoniter.Parse(jsoniter.ConfigDefault, data, data.chunkSize)
+		iter := jsoniter.Parse(jsoniter.DefaultAPI(), data, data.chunkSize)
 		i := 0
 		for iter.ReadArray() {
 			// every even item is float, let's just skip it.
@@ -146,7 +147,7 @@ func jsonFloatIntArray(t *testing.T, numberOfItems int) []byte {
 		}
 	}
 
-	fixture, err := jsoniter.ConfigFastest.Marshal(numbers)
+	fixture, err := jsoniter.FastestAPI().Marshal(numbers)
 	if err != nil {
 		panic(err)
 	}
@@ -162,7 +163,7 @@ func jsonFloatIntArray(t *testing.T, numberOfItems int) []byte {
 }
 
 func Benchmark_jsoniter_encode_int(b *testing.B) {
-	stream := jsoniter.NewStream(jsoniter.ConfigDefault, ioutil.Discard, 64)
+	stream := jsoniter.NewStream(jsoniter.DefaultAPI(), ioutil.Discard, 64)
 	for n := 0; n < b.N; n++ {
 		stream.Reset(nil)
 		stream.WriteUint64(0xffffffff)
@@ -176,7 +177,7 @@ func Benchmark_itoa(b *testing.B) {
 }
 
 func Benchmark_jsoniter_int(b *testing.B) {
-	iter := jsoniter.NewIterator(jsoniter.ConfigDefault)
+	iter := jsoniter.NewIterator(jsoniter.DefaultAPI())
 	input := []byte(`100`)
 	for n := 0; n < b.N; n++ {
 		iter.ResetBytes(input)

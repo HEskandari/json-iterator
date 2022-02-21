@@ -3,7 +3,7 @@ package test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/modern-go/reflect2"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -48,7 +48,7 @@ func Test_unmarshal(t *testing.T) {
 			}
 			err1 := json.Unmarshal([]byte(testCase.input), obj1)
 			should.NoError(err1, "json")
-			err2 := jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal([]byte(testCase.input), obj2)
+			err2 := jsoniter.CompatibleAPI().Unmarshal([]byte(testCase.input), obj2)
 			should.NoError(err2, "jsoniter")
 			should.Equal(obj1, obj2)
 		})
@@ -72,7 +72,7 @@ func Test_marshal(t *testing.T) {
 			should := require.New(t)
 			output1, err1 := json.Marshal(testCase)
 			should.NoError(err1, "json")
-			output2, err2 := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(testCase)
+			output2, err2 := jsoniter.CompatibleAPI().Marshal(testCase)
 			should.NoError(err2, "jsoniter")
 			should.Equal(string(output1), string(output2))
 		})

@@ -234,7 +234,7 @@ func (any *arrayAny) ToFloat64() float64 {
 }
 
 func (any *arrayAny) ToString() string {
-	str, _ := MarshalToString(any.val.Interface())
+	str, _ := DefaultAPI().MarshalToString(any.val.Interface())
 	return str
 }
 

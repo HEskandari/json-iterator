@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
@@ -28,7 +28,7 @@ func Test_errorInput(t *testing.T) {
 			} {
 				ptrVal := reflect.New(valType)
 				ptr := ptrVal.Interface()
-				err := jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal([]byte(data), ptr)
+				err := jsoniter.CompatibleAPI().Unmarshal([]byte(data), ptr)
 				require.Error(t, err, "on input %q", data)
 			}
 		})

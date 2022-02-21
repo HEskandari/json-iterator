@@ -76,6 +76,12 @@ func decoderOfMapKey(ctx *ctx, typ reflect2.Type) ValDecoder {
 		}
 	}
 
+	if typ.Implements(textUnmarshalerType) {
+		return &textUnmarshalerDecoder{
+			valType: typ,
+		}
+	}
+
 	switch typ.Kind() {
 	case reflect.String:
 		return decoderOfType(ctx, reflect2.DefaultTypeOfKind(reflect.String))

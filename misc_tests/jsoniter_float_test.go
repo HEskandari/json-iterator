@@ -5,13 +5,13 @@ import (
 	"math"
 	"testing"
 
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_read_big_float(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `12.3`)
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `12.3`)
 	val := iter.ReadBigFloat()
 	val64, _ := val.Float64()
 	should.Equal(12.3, val64)
@@ -19,7 +19,7 @@ func Test_read_big_float(t *testing.T) {
 
 func Test_read_big_int(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `92233720368547758079223372036854775807`)
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `92233720368547758079223372036854775807`)
 	val := iter.ReadBigInt()
 	should.NotNil(val)
 	should.Equal(`92233720368547758079223372036854775807`, val.String())
@@ -27,20 +27,20 @@ func Test_read_big_int(t *testing.T) {
 
 func Test_read_float_as_interface(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `12.3`)
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `12.3`)
 	should.Equal(float64(12.3), iter.Read())
 }
 
 func Test_wrap_float(t *testing.T) {
 	should := require.New(t)
-	str, err := jsoniter.MarshalToString(jsoniter.WrapFloat64(12.3))
+	str, err := jsoniter.DefaultAPI().MarshalToString(jsoniter.WrapFloat64(12.3))
 	should.Nil(err)
 	should.Equal("12.3", str)
 }
 
 func Test_read_float64_cursor(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, "[1.23456789\n,2,3]")
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), "[1.23456789\n,2,3]")
 	should.True(iter.ReadArray())
 	should.Equal(1.23456789, iter.Read())
 	should.True(iter.ReadArray())
@@ -50,11 +50,11 @@ func Test_read_float64_cursor(t *testing.T) {
 func Test_read_float_scientific(t *testing.T) {
 	should := require.New(t)
 	var obj interface{}
-	should.NoError(jsoniter.UnmarshalFromString(`1e1`, &obj))
+	should.NoError(jsoniter.DefaultAPI().UnmarshalFromString(`1e1`, &obj))
 	should.Equal(float64(10), obj)
 	should.NoError(json.Unmarshal([]byte(`1e1`), &obj))
 	should.Equal(float64(10), obj)
-	should.NoError(jsoniter.UnmarshalFromString(`1.0e1`, &obj))
+	should.NoError(jsoniter.DefaultAPI().UnmarshalFromString(`1.0e1`, &obj))
 	should.Equal(float64(10), obj)
 	should.NoError(json.Unmarshal([]byte(`1.0e1`), &obj))
 	should.Equal(float64(10), obj)
@@ -73,7 +73,7 @@ func Test_lossy_float_marshal(t *testing.T) {
 
 func Test_read_number(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `92233720368547758079223372036854775807`)
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `92233720368547758079223372036854775807`)
 	val := iter.ReadNumber()
 	should.Equal(`92233720368547758079223372036854775807`, string(val))
 }
@@ -82,9 +82,9 @@ func Test_encode_inf(t *testing.T) {
 	should := require.New(t)
 	_, err := json.Marshal(math.Inf(1))
 	should.Error(err)
-	_, err = jsoniter.Marshal(float32(math.Inf(1)))
+	_, err = jsoniter.DefaultAPI().Marshal(float32(math.Inf(1)))
 	should.Error(err)
-	_, err = jsoniter.Marshal(math.Inf(-1))
+	_, err = jsoniter.DefaultAPI().Marshal(math.Inf(-1))
 	should.Error(err)
 }
 
@@ -92,16 +92,16 @@ func Test_encode_nan(t *testing.T) {
 	should := require.New(t)
 	_, err := json.Marshal(math.NaN())
 	should.Error(err)
-	_, err = jsoniter.Marshal(float32(math.NaN()))
+	_, err = jsoniter.DefaultAPI().Marshal(float32(math.NaN()))
 	should.Error(err)
-	_, err = jsoniter.Marshal(math.NaN())
+	_, err = jsoniter.DefaultAPI().Marshal(math.NaN())
 	should.Error(err)
 }
 
 func Benchmark_jsoniter_float(b *testing.B) {
 	b.ReportAllocs()
 	input := []byte(`1.1123,`)
-	iter := jsoniter.NewIterator(jsoniter.ConfigDefault)
+	iter := jsoniter.NewIterator(jsoniter.DefaultAPI())
 	for n := 0; n < b.N; n++ {
 		iter.ResetBytes(input)
 		iter.ReadFloat64()

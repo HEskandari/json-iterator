@@ -2,7 +2,7 @@ package misc_tests
 
 import (
 	"encoding/json"
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"reflect"
 	"strings"
 	"testing"
@@ -235,7 +235,7 @@ func Test_deep_nested(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			for _, target := range targets {
 				t.Run(target.name, func(t *testing.T) {
-					err := jsoniter.Unmarshal(tc.data, target.new())
+					err := jsoniter.DefaultAPI().Unmarshal(tc.data, target.new())
 					if len(tc.expectError) == 0 {
 						if err != nil {
 							t.Errorf("unexpected error: %v", err)
@@ -254,7 +254,7 @@ func Test_deep_nested(t *testing.T) {
 }
 
 func Test_nested(t *testing.T) {
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `{"hello": [{"world": "value1"}, {"world": "value2"}]}`)
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `{"hello": [{"world": "value1"}, {"world": "value2"}]}`)
 	l1 := Level1{}
 	for l1Field := iter.ReadObject(); l1Field != ""; l1Field = iter.ReadObject() {
 		switch l1Field {
@@ -289,7 +289,7 @@ func Test_nested(t *testing.T) {
 
 func Benchmark_jsoniter_nested(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		iter := jsoniter.ParseString(jsoniter.ConfigDefault, `{"hello": [{"world": "value1"}, {"world": "value2"}]}`)
+		iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `{"hello": [{"world": "value1"}, {"world": "value2"}]}`)
 		l1 := Level1{}
 		for l1Field := iter.ReadObject(); l1Field != ""; l1Field = iter.ReadObject() {
 			switch l1Field {
