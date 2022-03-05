@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"testing"
 
-	jsoniter "github.com/json-iterator/go"
+	jsoniter "github.com/heskandari/json-iterator"
 )
 
 func Benchmark_stream_encode_big_object(b *testing.B) {
 	var buf bytes.Buffer
-	var stream = jsoniter.NewStream(jsoniter.ConfigDefault, &buf, 100)
+	var stream = jsoniter.NewStream(jsoniter.DefaultAPI(), &buf, 100)
 	for i := 0; i < b.N; i++ {
 		buf.Reset()
 		stream.Reset(&buf)
@@ -22,14 +22,14 @@ func Benchmark_stream_encode_big_object(b *testing.B) {
 }
 
 func TestEncodeObject(t *testing.T) {
-	var stream = jsoniter.NewStream(jsoniter.ConfigDefault, nil, 100)
+	var stream = jsoniter.NewStream(jsoniter.DefaultAPI(), nil, 100)
 	encodeObject(stream)
 	if stream.Error != nil {
 		t.Errorf("error encoding a test object: %+v", stream.Error)
 		return
 	}
 	var m = make(map[string]interface{})
-	if err := jsoniter.Unmarshal(stream.Buffer(), &m); err != nil {
+	if err := jsoniter.DefaultAPI().Unmarshal(stream.Buffer(), &m); err != nil {
 		t.Errorf("error unmarshaling a test object: %+v", err)
 		return
 	}

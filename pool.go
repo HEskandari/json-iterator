@@ -17,12 +17,18 @@ type StreamPool interface {
 }
 
 func (cfg *frozenConfig) BorrowStream(writer io.Writer) *Stream {
+	cfg.locker.Lock()
+	defer cfg.locker.Unlock()
+
 	stream := cfg.streamPool.Get().(*Stream)
 	stream.Reset(writer)
 	return stream
 }
 
 func (cfg *frozenConfig) ReturnStream(stream *Stream) {
+	cfg.locker.Lock()
+	defer cfg.locker.Unlock()
+
 	stream.out = nil
 	stream.Error = nil
 	stream.Attachment = nil
@@ -30,12 +36,18 @@ func (cfg *frozenConfig) ReturnStream(stream *Stream) {
 }
 
 func (cfg *frozenConfig) BorrowIterator(data []byte) *Iterator {
+	cfg.locker.Lock()
+	defer cfg.locker.Unlock()
+
 	iter := cfg.iteratorPool.Get().(*Iterator)
 	iter.ResetBytes(data)
 	return iter
 }
 
 func (cfg *frozenConfig) ReturnIterator(iter *Iterator) {
+	cfg.locker.Lock()
+	defer cfg.locker.Unlock()
+
 	iter.Error = nil
 	iter.Attachment = nil
 	cfg.iteratorPool.Put(iter)

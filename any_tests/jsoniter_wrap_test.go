@@ -3,14 +3,14 @@ package any_tests
 import (
 	"testing"
 
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_wrap_and_valuetype_everything(t *testing.T) {
 	should := require.New(t)
 	var i interface{}
-	any := jsoniter.Get([]byte("123"))
+	any := jsoniter.DefaultAPI().Get([]byte("123"))
 	// default of number type is float64
 	i = float64(123)
 	should.Equal(i, any.GetInterface())
@@ -94,7 +94,7 @@ func Test_wrap_and_valuetype_everything(t *testing.T) {
 	i = nil
 	should.Equal(i, any.GetInterface())
 
-	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 32)
+	stream := jsoniter.NewStream(jsoniter.DefaultAPI(), nil, 32)
 	any.WriteTo(stream)
 	should.Equal("null", string(stream.Buffer()))
 	should.Equal(any.LastError(), nil)

@@ -1,7 +1,7 @@
 package any_tests
 
 import (
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -21,7 +21,7 @@ func Test_map_wrapper_any_get_all(t *testing.T) {
 	should.Contains(any.Keys(), "Field1")
 
 	// map write to
-	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 0)
+	stream := jsoniter.NewStream(jsoniter.DefaultAPI(), nil, 0)
 	any.WriteTo(stream)
 	// TODO cannot pass
 	//should.Equal(string(stream.buf), "")

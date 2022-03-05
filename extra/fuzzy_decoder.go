@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/modern-go/reflect2"
 )
 
@@ -19,11 +19,12 @@ const minInt = -maxInt - 1
 // RegisterFuzzyDecoders decode input from PHP with tolerance.
 // It will handle string/number auto conversation, and treat empty [] as empty struct.
 func RegisterFuzzyDecoders() {
-	jsoniter.RegisterExtension(&tolerateEmptyArrayExtension{})
-	jsoniter.RegisterTypeDecoder("string", &fuzzyStringDecoder{})
-	jsoniter.RegisterTypeDecoder("float32", &fuzzyFloat32Decoder{})
-	jsoniter.RegisterTypeDecoder("float64", &fuzzyFloat64Decoder{})
-	jsoniter.RegisterTypeDecoder("int", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api := jsoniter.DefaultAPI()
+	api.RegisterExtension(&tolerateEmptyArrayExtension{})
+	api.RegisterTypeDecoder("string", &fuzzyStringDecoder{})
+	api.RegisterTypeDecoder("float32", &fuzzyFloat32Decoder{})
+	api.RegisterTypeDecoder("float64", &fuzzyFloat64Decoder{})
+	api.RegisterTypeDecoder("int", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(maxInt) || val < float64(minInt) {
@@ -35,7 +36,7 @@ func RegisterFuzzyDecoders() {
 			*((*int)(ptr)) = iter.ReadInt()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("uint", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("uint", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(maxUint) || val < 0 {
@@ -47,7 +48,7 @@ func RegisterFuzzyDecoders() {
 			*((*uint)(ptr)) = iter.ReadUint()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("int8", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("int8", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(math.MaxInt8) || val < float64(math.MinInt8) {
@@ -59,7 +60,7 @@ func RegisterFuzzyDecoders() {
 			*((*int8)(ptr)) = iter.ReadInt8()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("uint8", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("uint8", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(math.MaxUint8) || val < 0 {
@@ -71,7 +72,7 @@ func RegisterFuzzyDecoders() {
 			*((*uint8)(ptr)) = iter.ReadUint8()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("int16", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("int16", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(math.MaxInt16) || val < float64(math.MinInt16) {
@@ -83,7 +84,7 @@ func RegisterFuzzyDecoders() {
 			*((*int16)(ptr)) = iter.ReadInt16()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("uint16", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("uint16", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(math.MaxUint16) || val < 0 {
@@ -95,7 +96,7 @@ func RegisterFuzzyDecoders() {
 			*((*uint16)(ptr)) = iter.ReadUint16()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("int32", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("int32", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(math.MaxInt32) || val < float64(math.MinInt32) {
@@ -107,7 +108,7 @@ func RegisterFuzzyDecoders() {
 			*((*int32)(ptr)) = iter.ReadInt32()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("uint32", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("uint32", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(math.MaxUint32) || val < 0 {
@@ -119,7 +120,7 @@ func RegisterFuzzyDecoders() {
 			*((*uint32)(ptr)) = iter.ReadUint32()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("int64", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("int64", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(math.MaxInt64) || val < float64(math.MinInt64) {
@@ -131,7 +132,7 @@ func RegisterFuzzyDecoders() {
 			*((*int64)(ptr)) = iter.ReadInt64()
 		}
 	}})
-	jsoniter.RegisterTypeDecoder("uint64", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	api.RegisterTypeDecoder("uint64", &fuzzyIntegerDecoder{func(isFloat bool, ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		if isFloat {
 			val := iter.ReadFloat64()
 			if val > float64(math.MaxUint64) || val < 0 {

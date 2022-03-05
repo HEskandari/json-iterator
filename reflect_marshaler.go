@@ -3,6 +3,7 @@ package jsoniter
 import (
 	"encoding"
 	"encoding/json"
+	"fmt"
 	"unsafe"
 
 	"github.com/modern-go/reflect2"
@@ -12,6 +13,7 @@ var marshalerType = reflect2.TypeOfPtr((*json.Marshaler)(nil)).Elem()
 var unmarshalerType = reflect2.TypeOfPtr((*json.Unmarshaler)(nil)).Elem()
 var textMarshalerType = reflect2.TypeOfPtr((*encoding.TextMarshaler)(nil)).Elem()
 var textUnmarshalerType = reflect2.TypeOfPtr((*encoding.TextUnmarshaler)(nil)).Elem()
+var stringerType = reflect2.TypeOfPtr((*fmt.Stringer)(nil)).Elem()
 
 func createDecoderOfMarshaler(ctx *ctx, typ reflect2.Type) ValDecoder {
 	ptrType := reflect2.PtrTo(typ)
@@ -64,6 +66,16 @@ func createEncoderOfMarshaler(ctx *ctx, typ reflect2.Type) ValEncoder {
 	if typ.Implements(textMarshalerType) {
 		checkIsEmpty := createCheckIsEmpty(ctx, typ)
 		var encoder ValEncoder = &textMarshalerEncoder{
+			valType:       typ,
+			stringEncoder: ctx.EncoderOf(reflect2.TypeOf("")),
+			checkIsEmpty:  checkIsEmpty,
+		}
+		return encoder
+	}
+
+	if typ.Implements(stringerType) {
+		checkIsEmpty := createCheckIsEmpty(ctx, typ)
+		var encoder ValEncoder = &stringerEncoder{
 			valType:       typ,
 			stringEncoder: ctx.EncoderOf(reflect2.TypeOf("")),
 			checkIsEmpty:  checkIsEmpty,
@@ -139,6 +151,27 @@ type textMarshalerEncoder struct {
 	valType       reflect2.Type
 	stringEncoder ValEncoder
 	checkIsEmpty  checkIsEmpty
+}
+
+type stringerEncoder struct {
+	valType       reflect2.Type
+	stringEncoder ValEncoder
+	checkIsEmpty  checkIsEmpty
+}
+
+func (encoder *stringerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {
+	obj := encoder.valType.UnsafeIndirect(ptr)
+	if encoder.valType.IsNullable() && reflect2.IsNil(obj) {
+		stream.WriteNil()
+		return
+	}
+	stringer := (obj).(fmt.Stringer)
+	str := stringer.String()
+	encoder.stringEncoder.Encode(unsafe.Pointer(&str), stream)
+}
+
+func (encoder *stringerEncoder) IsEmpty(ptr unsafe.Pointer) bool {
+	return encoder.checkIsEmpty.IsEmpty(ptr)
 }
 
 func (encoder *textMarshalerEncoder) Encode(ptr unsafe.Pointer, stream *Stream) {

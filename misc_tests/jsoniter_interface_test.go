@@ -2,7 +2,7 @@ package misc_tests
 
 import (
 	"encoding/json"
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
 	"io"
 	"testing"
@@ -16,7 +16,7 @@ func Test_nil_non_empty_interface(t *testing.T) {
 	obj := TestObject{}
 	b := []byte(`{"Field":["AAA"]}`)
 	should.NotNil(json.Unmarshal(b, &obj))
-	should.NotNil(jsoniter.Unmarshal(b, &obj))
+	should.NotNil(jsoniter.DefaultAPI().Unmarshal(b, &obj))
 }
 
 func Test_nil_out_null_interface(t *testing.T) {
@@ -32,13 +32,13 @@ func Test_nil_out_null_interface(t *testing.T) {
 
 	data1 := []byte(`{"field": true}`)
 
-	err := jsoniter.Unmarshal(data1, &obj)
+	err := jsoniter.DefaultAPI().Unmarshal(data1, &obj)
 	should.NoError(err)
 	should.Equal(true, *(obj.Field.(*bool)))
 
 	data2 := []byte(`{"field": null}`)
 
-	err = jsoniter.Unmarshal(data2, &obj)
+	err = jsoniter.DefaultAPI().Unmarshal(data2, &obj)
 	should.NoError(err)
 	should.Nil(obj.Field)
 
@@ -86,12 +86,12 @@ func Test_overwrite_interface_ptr_value_with_nil(t *testing.T) {
 		Payload: &payload,
 	}
 
-	err = jsoniter.Unmarshal([]byte(`{"payload": {"val": 42}}`), &wrapper)
+	err = jsoniter.DefaultAPI().Unmarshal([]byte(`{"payload": {"val": 42}}`), &wrapper)
 	should.Equal(nil, err)
 	should.Equal(&payload, wrapper.Payload)
 	should.Equal(42, (*(wrapper.Payload.(**Payload))).Value)
 
-	err = jsoniter.Unmarshal([]byte(`{"payload": null}`), &wrapper)
+	err = jsoniter.DefaultAPI().Unmarshal([]byte(`{"payload": null}`), &wrapper)
 	should.NoError(err)
 	should.Equal(&payload, wrapper.Payload)
 	should.Equal((*Payload)(nil), payload)
@@ -126,11 +126,11 @@ func Test_overwrite_interface_value_with_nil(t *testing.T) {
 		Payload: payload,
 	}
 
-	err = jsoniter.Unmarshal([]byte(`{"payload": {"val": 42}}`), &wrapper)
+	err = jsoniter.DefaultAPI().Unmarshal([]byte(`{"payload": {"val": 42}}`), &wrapper)
 	should.Equal(nil, err)
 	should.Equal(42, wrapper.Payload.(*Payload).Value)
 
-	err = jsoniter.Unmarshal([]byte(`{"payload": null}`), &wrapper)
+	err = jsoniter.DefaultAPI().Unmarshal([]byte(`{"payload": null}`), &wrapper)
 	should.Equal(nil, err)
 	should.Equal(nil, wrapper.Payload)
 	should.Equal(42, payload.Value)
@@ -166,12 +166,12 @@ func Test_unmarshal_into_nil(t *testing.T) {
 		Payload: payload,
 	}
 
-	err = jsoniter.Unmarshal([]byte(`{"payload": {"val": 42}}`), &wrapper)
+	err = jsoniter.DefaultAPI().Unmarshal([]byte(`{"payload": {"val": 42}}`), &wrapper)
 	should.NoError(err)
 	should.NotNil(wrapper.Payload)
 	should.Nil(payload)
 
-	err = jsoniter.Unmarshal([]byte(`{"payload": null}`), &wrapper)
+	err = jsoniter.DefaultAPI().Unmarshal([]byte(`{"payload": null}`), &wrapper)
 	should.NoError(err)
 	should.Nil(wrapper.Payload)
 	should.Nil(payload)

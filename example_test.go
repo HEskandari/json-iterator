@@ -17,7 +17,7 @@ func ExampleMarshal() {
 		Name:   "Reds",
 		Colors: []string{"Crimson", "Red", "Ruby", "Maroon"},
 	}
-	b, err := Marshal(group)
+	b, err := DefaultAPI().Marshal(group)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
@@ -36,7 +36,7 @@ func ExampleUnmarshal() {
 		Order string
 	}
 	var animals []Animal
-	err := Unmarshal(jsonBlob, &animals)
+	err := DefaultAPI().Unmarshal(jsonBlob, &animals)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
@@ -56,8 +56,9 @@ func ExampleConfigFastest_Marshal() {
 		Name:   "Reds",
 		Colors: []string{"Crimson", "Red", "Ruby", "Maroon"},
 	}
-	stream := ConfigFastest.BorrowStream(nil)
-	defer ConfigFastest.ReturnStream(stream)
+	api := FastestAPI()
+	stream := api.BorrowStream(nil)
+	defer api.ReturnStream(stream)
 	stream.WriteVal(group)
 	if stream.Error != nil {
 		fmt.Println("error:", stream.Error)
@@ -77,8 +78,9 @@ func ExampleConfigFastest_Unmarshal() {
 		Order string
 	}
 	var animals []Animal
-	iter := ConfigFastest.BorrowIterator(jsonBlob)
-	defer ConfigFastest.ReturnIterator(iter)
+	api := FastestAPI()
+	iter := api.BorrowIterator(jsonBlob)
+	defer api.ReturnIterator(iter)
 	iter.ReadVal(&animals)
 	if iter.Error != nil {
 		fmt.Println("error:", iter.Error)
@@ -90,17 +92,18 @@ func ExampleConfigFastest_Unmarshal() {
 
 func ExampleGet() {
 	val := []byte(`{"ID":1,"Name":"Reds","Colors":["Crimson","Red","Ruby","Maroon"]}`)
-	fmt.Printf(Get(val, "Colors", 0).ToString())
+	fmt.Printf(FastestAPI().Get(val, "Colors", 0).ToString())
 	// Output:
 	// Crimson
 }
 
 func ExampleMyKey() {
 	hello := MyKey("hello")
-	output, _ := Marshal(map[*MyKey]string{&hello: "world"})
+	api := DefaultAPI()
+	output, _ := api.Marshal(map[*MyKey]string{&hello: "world"})
 	fmt.Println(string(output))
 	obj := map[*MyKey]string{}
-	Unmarshal(output, &obj)
+	api.Unmarshal(output, &obj)
 	for k, v := range obj {
 		fmt.Println(*k, v)
 	}

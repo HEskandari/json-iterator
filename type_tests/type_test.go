@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/google/gofuzz"
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"reflect"
 	"strings"
 	"testing"
@@ -44,7 +44,7 @@ func Test_symmetric(t *testing.T) {
 				if len(strings.TrimSpace(string(jbStd))) == 0 {
 					t.Fatal("stdlib marshal produced empty result and no error")
 				}
-				jbIter, err := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(before)
+				jbIter, err := jsoniter.CompatibleAPI().Marshal(before)
 				if err != nil {
 					t.Fatalf("failed to marshal with jsoniter: %v", err)
 				}
@@ -65,7 +65,7 @@ func Test_symmetric(t *testing.T) {
 				}
 				afterIterPtrVal := reflect.New(valType)
 				afterIterPtr := afterIterPtrVal.Interface()
-				err = jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(jbIter, afterIterPtr)
+				err = jsoniter.CompatibleAPI().Unmarshal(jbIter, afterIterPtr)
 				if err != nil {
 					t.Fatalf("failed to unmarshal with jsoniter: %v\nvia:\n    %s",
 						err, indent(jbIter, "    "))
@@ -99,7 +99,7 @@ func Test_asymmetric(t *testing.T) {
 			if len(strings.TrimSpace(string(jbStd))) == 0 {
 				t.Fatal("stdlib marshal produced empty result and no error")
 			}
-			jbIter, err := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(before)
+			jbIter, err := jsoniter.CompatibleAPI().Marshal(before)
 			if err != nil {
 				t.Fatalf("failed to marshal with jsoniter: %v", err)
 			}
@@ -120,7 +120,7 @@ func Test_asymmetric(t *testing.T) {
 			}
 			afterIterPtrVal := reflect.New(toType)
 			afterIterPtr := afterIterPtrVal.Interface()
-			err = jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(jbIter, afterIterPtr)
+			err = jsoniter.CompatibleAPI().Unmarshal(jbIter, afterIterPtr)
 			if err != nil {
 				t.Fatalf("failed to unmarshal with jsoniter: %v\nvia:\n    %s",
 					err, indent(jbIter, "    "))

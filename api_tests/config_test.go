@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
 )
 
@@ -42,7 +42,7 @@ func Test_read_large_number_as_interface(t *testing.T) {
 	var val interface{}
 	err := jsoniter.Config{UseNumber: true}.Froze().UnmarshalFromString(`123456789123456789123456789`, &val)
 	should.Nil(err)
-	output, err := jsoniter.MarshalToString(val)
+	output, err := jsoniter.DefaultAPI().MarshalToString(val)
 	should.Nil(err)
 	should.Equal(`123456789123456789123456789`, output)
 }
@@ -117,7 +117,7 @@ func Test_CaseSensitive(t *testing.T) {
 		err := jsoniter.Config{CaseSensitive: tc.caseSensitive}.Froze().UnmarshalFromString(tc.input, &val)
 		should.Nil(err)
 
-		output, err := jsoniter.MarshalToString(val)
+		output, err := jsoniter.DefaultAPI().MarshalToString(val)
 		should.Nil(err)
 		should.Equal(tc.expectedOutput, output)
 	}
@@ -167,7 +167,7 @@ func Test_CaseSensitive_MoreThanTenFields(t *testing.T) {
 		err := jsoniter.Config{CaseSensitive: tc.caseSensitive}.Froze().UnmarshalFromString(tc.input, &val)
 		should.Nil(err)
 
-		output, err := jsoniter.MarshalToString(val)
+		output, err := jsoniter.DefaultAPI().MarshalToString(val)
 		should.Nil(err)
 		should.Equal(tc.expectedOutput, output)
 	}
@@ -212,7 +212,7 @@ func Test_OnlyTaggedField(t *testing.T) {
 	should.Nil(err)
 
 	m := make(map[string]interface{})
-	err = jsoniter.Unmarshal(output, &m)
+	err = jsoniter.DefaultAPI().Unmarshal(output, &m)
 	should.Nil(err)
 
 	should.Equal(map[string]interface{}{

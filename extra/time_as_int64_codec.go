@@ -1,15 +1,15 @@
 package extra
 
 import (
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"time"
 	"unsafe"
 )
 
 // RegisterTimeAsInt64Codec encode/decode time since number of unit since epoch. the precision is the unit.
-func RegisterTimeAsInt64Codec(precision time.Duration) {
-	jsoniter.RegisterTypeEncoder("time.Time", &timeAsInt64Codec{precision})
-	jsoniter.RegisterTypeDecoder("time.Time", &timeAsInt64Codec{precision})
+func RegisterTimeAsInt64Codec(api jsoniter.API, precision time.Duration) {
+	api.RegisterTypeEncoder("time.Time", &timeAsInt64Codec{precision})
+	api.RegisterTypeDecoder("time.Time", &timeAsInt64Codec{precision})
 }
 
 type timeAsInt64Codec struct {

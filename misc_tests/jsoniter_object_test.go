@@ -5,18 +5,16 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
-	"strings"
-	"time"
 )
 
 func Test_empty_object(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `{}`)
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `{}`)
 	field := iter.ReadObject()
 	should.Equal("", field)
-	iter = jsoniter.ParseString(jsoniter.ConfigDefault, `{}`)
+	iter = jsoniter.ParseString(jsoniter.DefaultAPI(), `{}`)
 	iter.ReadObjectCB(func(iter *jsoniter.Iterator, field string) bool {
 		should.FailNow("should not call")
 		return true
@@ -25,14 +23,14 @@ func Test_empty_object(t *testing.T) {
 
 func Test_one_field(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `{"a": "stream"}`)
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `{"a": "stream"}`)
 	field := iter.ReadObject()
 	should.Equal("a", field)
 	value := iter.ReadString()
 	should.Equal("stream", value)
 	field = iter.ReadObject()
 	should.Equal("", field)
-	iter = jsoniter.ParseString(jsoniter.ConfigDefault, `{"a": "stream"}`)
+	iter = jsoniter.ParseString(jsoniter.DefaultAPI(), `{"a": "stream"}`)
 	should.True(iter.ReadObjectCB(func(iter *jsoniter.Iterator, field string) bool {
 		should.Equal("a", field)
 		iter.Skip()
@@ -43,7 +41,7 @@ func Test_one_field(t *testing.T) {
 
 func Test_two_field(t *testing.T) {
 	should := require.New(t)
-	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `{ "a": "stream" , "c": "d" }`)
+	iter := jsoniter.ParseString(jsoniter.DefaultAPI(), `{ "a": "stream" , "c": "d" }`)
 	field := iter.ReadObject()
 	should.Equal("a", field)
 	value := iter.ReadString()
@@ -54,7 +52,7 @@ func Test_two_field(t *testing.T) {
 	should.Equal("d", value)
 	field = iter.ReadObject()
 	should.Equal("", field)
-	iter = jsoniter.ParseString(jsoniter.ConfigDefault, `{"field1": "1", "field2": 2}`)
+	iter = jsoniter.ParseString(jsoniter.DefaultAPI(), `{"field1": "1", "field2": 2}`)
 	for field := iter.ReadObject(); field != ""; field = iter.ReadObject() {
 		switch field {
 		case "field1":
@@ -83,55 +81,6 @@ func Test_write_object(t *testing.T) {
 	should.Equal("{\n  \"hello\": 1,\n  \"world\": 2\n}", buf.String())
 }
 
-func Test_reader_and_load_more(t *testing.T) {
-	should := require.New(t)
-	type TestObject struct {
-		CreatedAt time.Time
-	}
-	reader := strings.NewReader(`
-{
-	"agency": null,
-	"candidateId": 0,
-	"candidate": "Blah Blah",
-	"bookingId": 0,
-	"shiftId": 1,
-	"shiftTypeId": 0,
-	"shift": "Standard",
-	"bonus": 0,
-	"bonusNI": 0,
-	"days": [],
-	"totalHours": 27,
-	"expenses": [],
-	"weekEndingDateSystem": "2016-10-09",
-	"weekEndingDateClient": "2016-10-09",
-	"submittedAt": null,
-	"submittedById": null,
-	"approvedAt": "2016-10-10T18:38:04Z",
-	"approvedById": 0,
-	"authorisedAt": "2016-10-10T18:38:04Z",
-	"authorisedById": 0,
-	"invoicedAt": "2016-10-10T20:00:00Z",
-	"revokedAt": null,
-	"revokedById": null,
-	"revokeReason": null,
-	"rejectedAt": null,
-	"rejectedById": null,
-	"rejectReasonCode": null,
-	"rejectReason": null,
-	"createdAt": "2016-10-03T00:00:00Z",
-	"updatedAt": "2016-11-09T10:26:13Z",
-	"updatedById": null,
-	"overrides": [],
-	"bookingApproverId": null,
-	"bookingApprover": null,
-	"status": "approved"
-}
-	`)
-	decoder := jsoniter.ConfigCompatibleWithStandardLibrary.NewDecoder(reader)
-	obj := TestObject{}
-	should.Nil(decoder.Decode(&obj))
-}
-
 func Test_unmarshal_into_existing_value(t *testing.T) {
 	should := require.New(t)
 	type TestObject struct {
@@ -156,7 +105,7 @@ func Test_unmarshal_anonymous_struct_invalid(t *testing.T) {
 		Field1 string
 	}{}
 
-	cfg := jsoniter.ConfigCompatibleWithStandardLibrary
+	cfg := jsoniter.CompatibleAPI()
 	err := cfg.UnmarshalFromString(`{"Field1":`, &t0)
 	should.NotNil(err)
 	should.NotContains(err.Error(), reflect.TypeOf(t0).String())

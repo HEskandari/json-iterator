@@ -2,7 +2,7 @@ package test
 
 import (
 	"encoding/json"
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"testing"
 	"unicode/utf8"
 )
@@ -35,8 +35,8 @@ func Test_read_string(t *testing.T) {
 
 	for _, input := range badInputs {
 		testReadString(t, input, "", true, "json.Unmarshal", json.Unmarshal)
-		testReadString(t, input, "", true, "jsoniter.Unmarshal", jsoniter.Unmarshal)
-		testReadString(t, input, "", true, "jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal", jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal)
+		testReadString(t, input, "", true, "jsoniter.Unmarshal", jsoniter.DefaultAPI().Unmarshal)
+		testReadString(t, input, "", true, "jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal", jsoniter.CompatibleAPI().Unmarshal)
 	}
 
 	goodInputs := []struct {
@@ -69,8 +69,8 @@ func Test_read_string(t *testing.T) {
 
 	for _, tc := range goodInputs {
 		testReadString(t, tc.input, tc.expectValue, false, "json.Unmarshal", json.Unmarshal)
-		testReadString(t, tc.input, tc.expectValue, false, "jsoniter.Unmarshal", jsoniter.Unmarshal)
-		testReadString(t, tc.input, tc.expectValue, false, "jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal", jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal)
+		testReadString(t, tc.input, tc.expectValue, false, "jsoniter.Unmarshal", jsoniter.DefaultAPI().Unmarshal)
+		testReadString(t, tc.input, tc.expectValue, false, "jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal", jsoniter.CompatibleAPI().Unmarshal)
 	}
 }
 

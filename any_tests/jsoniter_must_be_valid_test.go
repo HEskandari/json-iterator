@@ -3,14 +3,15 @@ package any_tests
 import (
 	"testing"
 
-	"github.com/json-iterator/go"
+	"github.com/heskandari/json-iterator"
 	"github.com/stretchr/testify/require"
 )
 
 // if must be valid is useless, just drop this test
 func Test_must_be_valid(t *testing.T) {
 	should := require.New(t)
-	any := jsoniter.Get([]byte("123"))
+	api := jsoniter.DefaultAPI()
+	any := api.Get([]byte("123"))
 	should.Equal(any.MustBeValid().ToInt(), 123)
 
 	any = jsoniter.Wrap(int8(10))
